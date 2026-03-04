@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+<div class="bus-page-header">
+    <div class="bus-page-eyebrow">🚌 Bus Booking</div>
+    <h2 class="page-title">Find Your Bus</h2>
+    <p class="bus-page-sub">Search from hundreds of routes across the country</p>
+</div>
+
+<!-- ── SEARCH CARD ─────────────────────────────────────────── -->
+<div class="search-card bus-search-card">
+    <form method="POST" id="busSearchForm">
+        <div class="bus-search-grid">
+
+            <!-- From -->
+            <div class="bus-field">
+                <span class="bus-field-icon">📍</span>
+                <div class="bus-field-inner">
+                    <label>From</label>
+                    <input type="text" name="source" placeholder="Enter city or stop" required autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Swap arrow -->
+            <button type="button" class="swap-btn" title="Swap cities" onclick="swapCities()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+                </svg>
+            </button>
+
+            <!-- To -->
+            <div class="bus-field">
+                <span class="bus-field-icon">🏁</span>
+                <div class="bus-field-inner">
+                    <label>To</label>
+                    <input type="text" name="destination" placeholder="Enter city or stop" required autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Date -->
+            <div class="bus-field">
+                <span class="bus-field-icon">📅</span>
+                <div class="bus-field-inner">
+                    <label>Travel Date</label>
+                    <input type="date" name="date" required>
+                </div>
+            </div>
+
+            <!-- Search Button -->
+            <button type="submit" class="btn bus-search-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                Search Buses
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ── RESULTS ─────────────────────────────────────────────── -->
+{% if buses %}
+
+<div class="bus-results-header">
+    <p class="bus-results-count">
+        <strong>{{ buses|length }} bus{{ 'es' if buses|length != 1 else '' }}</strong> found
+    </p>
+    <div class="bus-sort-pill">Sort: Departure ↑</div>
+</div>
+
+<div class="results-section">
+    {% for bus in buses %}
+    <div class="result-card bus-result-card" style="animation-delay: {{ loop.index0 * 0.07 }}s">
+
+        <!-- Left: Operator badge + route -->
+        <div class="bus-col-operator">
+            <div class="bus-operator-badge">
+                {{ bus.name[:2].upper() }}
+            </div>
+            <div>
+                <h3 class="bus-name">{{ bus.name }}</h3>
+                <span class="bus-type-tag">Express</span>
+            </div>
+        </div>
+
+        <!-- Center: Route timeline -->
+        <div class="bus-col-route">
+            <div class="bus-route-timeline">
+                <div class="bus-stop">
+                    <span class="bus-stop-dot origin"></span>
+                    <div>
+                        <p class="bus-stop-city">{{ bus.source }}</p>
+                        <p class="bus-stop-label">Departure</p>
+                    </div>
+                </div>
+                <div class="bus-route-line">
+                    <span class="bus-route-duration">~ 6 hrs</span>
+                </div>
+                <div class="bus-stop">
+                    <span class="bus-stop-dot destination"></span>
+                    <div>
+                        <p class="bus-stop-city">{{ bus.destination }}</p>
+                        <p class="bus-stop-label">Arrival</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date chip -->
+        <div class="bus-col-date">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.55"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            {{ bus.date }}
+        </div>
+
+        <!-- Right: Price + CTA -->
+        <div class="bus-col-cta">
+            <div class="bus-price-label">Starting from</div>
+            <p class="price">₹ {{ bus.price }}</p>
+            <a href="/select_seats/{{ bus.id }}" class="btn small-btn bus-book-btn">
+                Select Seats
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+
+<!-- Empty state (shown before first search OR no results) -->
+<div class="bus-empty-state">
+    <div class="bus-empty-icon">🚌</div>
+    <h3>Ready to hit the road?</h3>
+    <p>Enter your source, destination and date above to discover available buses.</p>
+</div>
+
+{% endif %}
+
+
+<!-- ── SCOPED STYLES ───────────────────────────────────────── -->
+<style>
+/* Page header */
+.bus-page-header {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s ease both;
+}
+.bus-page-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+.bus-page-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-top: -8px;
+}
+
+/* Search card overrides */
+.bus-search-card {
+    max-width: 900px;
+    margin: 0 auto 44px;
+}
+.bus-search-grid {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr 1fr auto;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Individual field */
+.bus-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+.bus-field:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,160,48,0.15);
+}
+.bus-field-icon { font-size: 18px; flex-shrink: 0; }
+.bus-field-inner { display: flex; flex-direction: column; flex: 1; }
+.bus-field-inner label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3px;
+}
+.bus-field-inner input {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    width: 100%;
+}
+.bus-field-inner input::placeholder { color: var(--text-muted); font-weight: 300; }
+
+/* Swap button */
+.swap-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(232,160,48,0.12);
+    border: 1px solid rgba(232,160,48,0.3);
+    color: var(--accent);
+    cursor: pointer;
+    transition: background 0.25s, transform 0.3s;
+    justify-self: center;
+}
+.swap-btn:hover {
+    background: rgba(232,160,48,0.22);
+    transform: rotate(180deg);
+}
+
+/* Search button */
+.bus-search-btn {
+    padding: 13px 24px;
+    white-space: nowrap;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border-radius: 10px;
+}
+
+/* Results header row */
+.bus-results-header {
+    max-width: 900px;
+    margin: 0 auto 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+}
+.bus-results-count { font-size: 14px; color: var(--text-secondary); }
+.bus-results-count strong { color: var(--text-primary); font-weight: 600; }
+.bus-sort-pill {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 5px 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.bus-sort-pill:hover { background: rgba(255,255,255,0.12); }
+
+/* Result cards */
+.results-section { max-width: 900px; margin: 0 auto; }
+
+.bus-result-card {
+    display: grid;
+    grid-template-columns: 180px 1fr 120px 160px;
+    gap: 20px;
+    align-items: center;
+    padding: 22px 26px;
+}
+
+/* Operator column */
+.bus-col-operator {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.bus-operator-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(232,160,48,0.25), rgba(232,160,48,0.08));
+    border: 1px solid rgba(232,160,48,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+.bus-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+}
+.bus-type-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(62,207,142,0.15);
+    color: #3ecf8e;
+    border: 1px solid rgba(62,207,142,0.25);
+    padding: 2px 8px;
+    border-radius: 50px;
+}
+
+/* Route timeline */
+.bus-route-timeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.bus-stop { display: flex; align-items: center; gap: 10px; }
+.bus-stop-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.bus-stop-dot.origin      { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.bus-stop-dot.destination { background: #3ecf8e; box-shadow: 0 0 8px rgba(62,207,142,0.4); }
+.bus-stop-city  { font-size: 14px; font-weight: 600; line-height: 1.2; }
+.bus-stop-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.bus-route-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0.15), #3ecf8e);
+    margin: 0 14px;
+    position: relative;
+    min-width: 60px;
+}
+.bus-route-duration {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    background: var(--bg-mid);
+    padding: 1px 8px;
+    border-radius: 50px;
+    border: 1px solid var(--glass-border);
+}
+
+/* Date column */
+.bus-col-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+/* CTA column */
+.bus-col-cta { text-align: right; }
+.bus-price-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+.bus-col-cta .price { margin-bottom: 12px; }
+.bus-book-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+}
+
+/* Empty state */
+.bus-empty-state {
+    text-align: center;
+    padding: 80px 24px;
+    max-width: 420px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.2s ease both;
+}
+.bus-empty-icon { font-size: 56px; margin-bottom: 20px; display: block; }
+.bus-empty-state h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+.bus-empty-state p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-weight: 300;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .bus-search-grid { grid-template-columns: 1fr 36px 1fr; grid-template-rows: auto auto auto; }
+    .bus-search-grid .bus-field:nth-child(4) { grid-column: 1 / -1; }
+    .bus-search-grid .bus-search-btn        { grid-column: 1 / -1; }
+    .bus-result-card { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 16px; }
+    .bus-col-route   { grid-column: 1 / -1; }
+    .bus-col-cta     { text-align: left; }
+}
+@media (max-width: 480px) {
+    .bus-result-card { grid-template-columns: 1fr; }
+    .bus-route-line  { min-width: 30px; }
+}
+</style>
+
+<!-- ── SWAP SCRIPT ──────────────────────────────────────────── -->
+<script>
+function swapCities() {
+    const src  = document.querySelector('input[name="source"]');
+    const dest = document.querySelector('input[name="destination"]');
+    [src.value, dest.value] = [dest.value, src.value];
+}
+
+/* Set min date to today */
+document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.querySelector('input[name="date"]');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+        if (!dateInput.value) dateInput.value = today;
+    }
+});
+</script>
+
+{% endblock %}

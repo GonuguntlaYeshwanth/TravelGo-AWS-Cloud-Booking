@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="page-title">Select Your Seats</h2>
+
+<form method="POST">
+    <div class="seat-container">
+        {% for i in range(1, 41) %}
+            <label class="seat">
+                <input type="checkbox" name="seats" value="S{{ i }}">
+                <span>S{{ i }}</span>
+            </label>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn">Proceed to Payment</button>
+</form>
+
+{% endblock %}

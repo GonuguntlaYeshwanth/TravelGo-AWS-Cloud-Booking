@@ -1,0 +1,810 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ═══════════════════════════════════════════
+   CSS VARIABLES — LUXURY DEEP NAVY PALETTE
+═══════════════════════════════════════════ */
+:root {
+    --bg-deep:        #070d1f;
+    --bg-mid:         #0c1635;
+    --bg-card:        rgba(255,255,255,0.055);
+    --bg-card-hover:  rgba(255,255,255,0.10);
+    --glass-border:   rgba(255,255,255,0.12);
+    --accent:         #e8a030;
+    --accent-glow:    rgba(232,160,48,0.35);
+    --accent-hover:   #f5b84a;
+    --text-primary:   #f0f4ff;
+    --text-secondary: rgba(200,215,255,0.65);
+    --text-muted:     rgba(150,170,220,0.45);
+    --success:        #3ecf8e;
+    --danger:         #f26b6b;
+    --radius-sm:      8px;
+    --radius-md:      14px;
+    --radius-lg:      22px;
+    --shadow-card:    0 12px 40px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3);
+    --shadow-glow:    0 0 40px rgba(232,160,48,0.18);
+    --transition:     0.28s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ═══════════════════════════════════════════
+   GLOBAL RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+
+    /* Ambient mesh background */
+    background-image:
+        radial-gradient(ellipse 80% 60% at 15% 10%,  rgba(30,70,140,0.55) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 50% at 85% 80%,  rgba(10,40,110,0.45) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 35% at 55% 45%,  rgba(232,160,48,0.06) 0%, transparent 60%);
+    background-attachment: fixed;
+}
+
+/* Subtle noise grain overlay */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-size: 180px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.55;
+}
+
+/* ═══════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════ */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(7, 13, 31, 0.75);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border-bottom: 1px solid var(--glass-border);
+    transition: background var(--transition);
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, #fff 40%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-links {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 50px;
+    letter-spacing: 0.02em;
+    transition: color var(--transition), background var(--transition);
+}
+
+.nav-links a:hover {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.08);
+}
+
+/* ═══════════════════════════════════════════
+   CONTAINER
+═══════════════════════════════════════════ */
+.container {
+    padding: 56px 56px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero {
+    text-align: center;
+    padding: 40px 0 20px;
+}
+
+.hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+    background: linear-gradient(160deg, #ffffff 35%, rgba(200,215,255,0.75));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeUp 0.8s ease both;
+}
+
+.hero p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 38px;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+    animation: fadeUp 0.8s 0.15s ease both;
+}
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn, .full-btn, .small-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 50px;
+    cursor: pointer;
+    border: none;
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition),
+        background var(--transition);
+}
+
+.btn {
+    background: linear-gradient(135deg, var(--accent), #d4881c);
+    padding: 14px 32px;
+    color: #fff;
+    box-shadow: 0 4px 24px var(--accent-glow);
+    animation: fadeUp 0.8s 0.3s ease both;
+}
+
+.btn:hover {
+    background: linear-gradient(135deg, var(--accent-hover), #e8a030);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px var(--accent-glow);
+}
+
+.full-btn {
+    width: 100%;
+    padding: 13px 24px;
+    background: linear-gradient(135deg, var(--accent), #c87c18);
+    color: #fff;
+    box-shadow: 0 4px 20px var(--accent-glow);
+    margin-top: 8px;
+}
+
+.full-btn:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 10px 36px var(--accent-glow);
+}
+
+.small-btn {
+    padding: 9px 20px;
+    background: linear-gradient(135deg, var(--accent), #c87c18);
+    color: #fff;
+    box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.small-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px var(--accent-glow);
+}
+
+/* ═══════════════════════════════════════════
+   GLASS CARD MIXIN (reusable class)
+═══════════════════════════════════════════ */
+.glass {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+/* ═══════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════ */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(28px) saturate(1.4);
+    -webkit-backdrop-filter: blur(28px) saturate(1.4);
+    padding: 48px 44px;
+    border-radius: var(--radius-lg);
+    width: 380px;
+    text-align: center;
+    box-shadow: var(--shadow-card), var(--shadow-glow);
+    animation: fadeUp 0.7s ease both;
+}
+
+.auth-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+}
+
+.auth-subtitle {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    font-weight: 300;
+}
+
+/* Floating label input group */
+.input-group {
+    position: relative;
+    margin-bottom: 28px;
+    text-align: left;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+
+.input-group input:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.10);
+    box-shadow: 0 0 0 3px rgba(232,160,48,0.18);
+}
+
+.input-group label {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition: var(--transition);
+    background: transparent;
+}
+
+.input-group input:focus + label,
+.input-group input:valid + label {
+    top: -10px;
+    left: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--bg-deep);
+    padding: 0 6px;
+    border-radius: 4px;
+}
+
+.switch-text {
+    margin-top: 22px;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+}
+
+.switch-text a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color var(--transition);
+}
+
+.switch-text a:hover {
+    color: var(--accent-hover);
+}
+
+/* ═══════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════ */
+.dashboard-title, .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 700;
+    margin-bottom: 32px;
+    letter-spacing: -0.01em;
+}
+
+/* Travel Options Grid */
+.travel-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 56px;
+}
+
+.travel-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    padding: 30px 26px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: var(--transition);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Accent stripe on top */
+.travel-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+
+.travel-card:hover {
+    transform: translateY(-7px);
+    background: var(--bg-card-hover);
+    box-shadow: var(--shadow-card), var(--shadow-glow);
+    border-color: rgba(232,160,48,0.25);
+}
+
+.travel-card:hover::before {
+    opacity: 1;
+}
+
+.travel-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+}
+
+.travel-card p {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    font-weight: 300;
+}
+
+/* Booking Section */
+.booking-section {
+    text-align: left;
+}
+
+.booking-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    padding: 22px 26px;
+    margin-bottom: 14px;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.booking-card:hover {
+    background: var(--bg-card-hover);
+    transform: translateX(4px);
+    border-color: rgba(232,160,48,0.2);
+}
+
+/* ═══════════════════════════════════════════
+   SEARCH CARDS (generic)
+═══════════════════════════════════════════ */
+.search-card,
+.flight-search,
+.train-search,
+.hotel-search {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    padding: 28px 30px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 40px;
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.search-grid,
+.flight-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.search-grid { grid-template-columns: repeat(4, 1fr); }
+.flight-grid { grid-template-columns: repeat(5, 1fr); }
+
+.train-grid {
+    display: grid;
+    grid-template-columns: 3fr 3fr 2fr 2fr;
+    gap: 14px;
+}
+
+.hotel-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+/* Shared search inputs */
+.search-grid input,
+.flight-grid input,
+.train-grid input,
+.hotel-grid input,
+.search-card input,
+.flight-search input,
+.train-search input,
+.hotel-search input {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    width: 100%;
+}
+
+.search-grid input:focus,
+.flight-grid input:focus,
+.train-grid input:focus,
+.hotel-grid input:focus,
+input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,160,48,0.15);
+    background: rgba(255,255,255,0.10);
+}
+
+input::placeholder {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════
+   RESULT / FLIGHT / TRAIN / HOTEL CARDS
+═══════════════════════════════════════════ */
+.results-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.result-card,
+.flight-card,
+.train-row {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    padding: 22px 26px;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.result-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flight-card {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.train-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.result-card:hover,
+.flight-card:hover,
+.train-row:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-4px);
+    border-color: rgba(232,160,48,0.22);
+    box-shadow: var(--shadow-card), 0 0 28px rgba(232,160,48,0.1);
+}
+
+.result-left h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    margin-bottom: 6px;
+}
+
+.price {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+    text-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* ═══════════════════════════════════════════
+   HOTEL RESULTS
+═══════════════════════════════════════════ */
+.hotel-results {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+.hotel-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    padding: 24px;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
+}
+
+.hotel-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+
+.hotel-card:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-7px);
+    border-color: rgba(232,160,48,0.22);
+    box-shadow: var(--shadow-card), var(--shadow-glow);
+}
+
+.hotel-card:hover::after {
+    opacity: 1;
+}
+
+/* ═══════════════════════════════════════════
+   SEAT SELECTOR
+═══════════════════════════════════════════ */
+.seat-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 30px;
+    max-width: 520px;
+}
+
+.seat {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.seat input {
+    display: none;
+}
+
+.seat span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 13px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition:
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+    user-select: none;
+}
+
+.seat span:hover {
+    background: rgba(255,255,255,0.13);
+    border-color: rgba(232,160,48,0.4);
+    transform: scale(1.06);
+}
+
+.seat input:checked + span {
+    background: linear-gradient(135deg, var(--accent), #c87c18);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 4px 18px var(--accent-glow);
+    transform: scale(1.08);
+}
+
+/* ═══════════════════════════════════════════
+   PAYMENT CARD
+═══════════════════════════════════════════ */
+.payment-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    padding: 36px;
+    border-radius: var(--radius-lg);
+    max-width: 440px;
+    box-shadow: var(--shadow-card), var(--shadow-glow);
+}
+
+.payment-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+}
+
+/* ═══════════════════════════════════════════
+   LEGACY FORM BOX (kept but elevated)
+═══════════════════════════════════════════ */
+.form-box {
+    display: inline-block;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--text-primary);
+    padding: 36px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.form-box input {
+    width: 260px;
+    padding: 11px 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    display: block;
+}
+
+.form-box input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,160,48,0.15);
+}
+
+.form-box button {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+    border-radius: 50px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(232,160,48,0.4);
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════ */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+/* Stagger children animation */
+.travel-options .travel-card:nth-child(1) { animation: fadeUp 0.6s 0.05s ease both; }
+.travel-options .travel-card:nth-child(2) { animation: fadeUp 0.6s 0.15s ease both; }
+.travel-options .travel-card:nth-child(3) { animation: fadeUp 0.6s 0.25s ease both; }
+.travel-options .travel-card:nth-child(4) { animation: fadeUp 0.6s 0.35s ease both; }
+
+.result-card, .flight-card, .train-row, .hotel-card, .booking-card {
+    animation: fadeUp 0.5s ease both;
+}
+
+/* Selection colour */
+::selection {
+    background: rgba(232,160,48,0.35);
+    color: #fff;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+    .travel-options  { grid-template-columns: repeat(2, 1fr); }
+    .search-grid,
+    .flight-grid     { grid-template-columns: repeat(2, 1fr); }
+    .hotel-results   { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .navbar          { padding: 14px 24px; }
+    .container       { padding: 32px 24px; }
+    .travel-options  { grid-template-columns: 1fr 1fr; }
+    .hotel-results   { grid-template-columns: 1fr; }
+    .result-card     { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .flight-card,
+    .train-row       { grid-template-columns: 1fr; gap: 12px; }
+    .train-grid,
+    .hotel-grid,
+    .search-grid,
+    .flight-grid     { grid-template-columns: 1fr 1fr; }
+    .auth-card       { width: 92vw; padding: 36px 28px; }
+    .seat-container  { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .travel-options  { grid-template-columns: 1fr; }
+    .search-grid,
+    .train-grid,
+    .hotel-grid,
+    .flight-grid     { grid-template-columns: 1fr; }
+    .hero h1         { font-size: 32px; }
+    .seat-container  { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
+}

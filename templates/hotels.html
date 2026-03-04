@@ -1,0 +1,585 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+<div class="hotel-page-header">
+    <div class="hotel-page-eyebrow">🏨 Hotel Booking</div>
+    <h2 class="page-title">Find Hotels</h2>
+    <p class="hotel-page-sub">Discover luxury stays, budget picks and family retreats</p>
+</div>
+
+<!-- ── SEARCH CARD ─────────────────────────────────────────── -->
+<div class="hotel-search hotel-search-card">
+    <form method="POST" id="hotelSearchForm">
+        <div class="hotel-search-grid">
+
+            <!-- City -->
+            <div class="hotel-field hotel-field--wide">
+                <span class="hotel-field-icon">📍</span>
+                <div class="hotel-field-inner">
+                    <label>Destination City</label>
+                    <input type="text" name="city" placeholder="Where are you going?" required autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="hotel-field">
+                <span class="hotel-field-icon">🏷️</span>
+                <div class="hotel-field-inner">
+                    <label>Category</label>
+                    <select name="category">
+                        <option value="">All Categories</option>
+                        <option value="Luxury">Luxury</option>
+                        <option value="Budget">Budget</option>
+                        <option value="Family">Family</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Max Price -->
+            <div class="hotel-field">
+                <span class="hotel-field-icon">💰</span>
+                <div class="hotel-field-inner">
+                    <label>Max Price / Night</label>
+                    <input type="number" name="max_price" placeholder="e.g. 5000" min="0">
+                </div>
+            </div>
+
+            <!-- Search -->
+            <button type="submit" class="btn hotel-search-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                Search Hotels
+            </button>
+
+        </div>
+
+        <!-- Quick filter tags -->
+        <div class="hotel-quick-filters">
+            <span class="hqf-label">Popular:</span>
+            <button type="button" class="hqf-tag" onclick="setCity('Mumbai')">Mumbai</button>
+            <button type="button" class="hqf-tag" onclick="setCity('Delhi')">Delhi</button>
+            <button type="button" class="hqf-tag" onclick="setCity('Goa')">Goa</button>
+            <button type="button" class="hqf-tag" onclick="setCity('Bangalore')">Bangalore</button>
+            <button type="button" class="hqf-tag" onclick="setCity('Hyderabad')">Hyderabad</button>
+        </div>
+
+    </form>
+</div>
+
+<!-- ── RESULTS ─────────────────────────────────────────────── -->
+{% if hotels %}
+
+<div class="hotel-results-header">
+    <p class="hotel-results-count">
+        <strong>{{ hotels|length }} hotel{{ 's' if hotels|length != 1 else '' }}</strong> available
+    </p>
+    <div class="hotel-view-toggle">
+        <button class="hvt-btn active" onclick="setView(this,'grid')" title="Grid view">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="hvt-btn" onclick="setView(this,'list')" title="List view">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </div>
+</div>
+
+<div class="hotel-results hotel-grid-view" id="hotelResultsGrid">
+    {% for hotel in hotels %}
+    <div class="hotel-card hotel-result-card hcat--{{ hotel.category | lower }}"
+         style="animation-delay: {{ loop.index0 * 0.08 }}s">
+
+        <!-- Category colour bar -->
+        <div class="hc-color-bar"></div>
+
+        <!-- Card top: name + category badge -->
+        <div class="hc-top">
+            <div class="hc-icon-wrap">
+                {% if hotel.category == 'Luxury' %}🏰
+                {% elif hotel.category == 'Budget' %}🏩
+                {% elif hotel.category == 'Family' %}🏡
+                {% else %}🏨{% endif %}
+            </div>
+            <span class="hc-category-badge hcb--{{ hotel.category | lower }}">
+                {{ hotel.category }}
+            </span>
+        </div>
+
+        <!-- Hotel name + city -->
+        <div class="hc-identity">
+            <h3 class="hc-name">{{ hotel.name }}</h3>
+            <p class="hc-city">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="opacity:.55"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ hotel.city }}
+            </p>
+        </div>
+
+        <!-- Star rating (static display) -->
+        <div class="hc-stars">
+            {% if hotel.category == 'Luxury' %}
+                <span class="hc-star filled">★</span><span class="hc-star filled">★</span><span class="hc-star filled">★</span><span class="hc-star filled">★</span><span class="hc-star filled">★</span>
+            {% elif hotel.category == 'Family' %}
+                <span class="hc-star filled">★</span><span class="hc-star filled">★</span><span class="hc-star filled">★</span><span class="hc-star filled">★</span><span class="hc-star">★</span>
+            {% else %}
+                <span class="hc-star filled">★</span><span class="hc-star filled">★</span><span class="hc-star filled">★</span><span class="hc-star">★</span><span class="hc-star">★</span>
+            {% endif %}
+        </div>
+
+        <!-- Amenity chips -->
+        <div class="hc-amenities">
+            <span class="hc-amenity">🛜 WiFi</span>
+            <span class="hc-amenity">🅿️ Parking</span>
+            {% if hotel.category == 'Luxury' %}
+            <span class="hc-amenity">🏊 Pool</span>
+            {% elif hotel.category == 'Family' %}
+            <span class="hc-amenity">🍳 Breakfast</span>
+            {% else %}
+            <span class="hc-amenity">❄️ AC</span>
+            {% endif %}
+        </div>
+
+        <!-- Divider -->
+        <div class="hc-divider"></div>
+
+        <!-- Price + Book -->
+        <div class="hc-footer">
+            <div>
+                <span class="hc-price-label">Per night</span>
+                <p class="price hc-price">₹ {{ hotel.price }}</p>
+            </div>
+            <form action="/book_hotel" method="POST" style="margin:0">
+                <input type="hidden" name="hotel_name" value="{{ hotel.name }}">
+                <input type="hidden" name="city" value="{{ hotel.city }}">
+                <input type="hidden" name="price" value="{{ hotel.price }}">
+                <button type="submit" class="btn small-btn hc-book-btn">
+                    Book Room
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </form>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+
+<!-- Empty / pre-search state -->
+<div class="hotel-empty-state">
+    <div class="hotel-empty-visual">
+        <div class="hev-ring hev-r1"></div>
+        <div class="hev-ring hev-r2"></div>
+        <div class="hev-icon">🏨</div>
+    </div>
+    <h3>Find your perfect stay</h3>
+    <p>Enter a city above to browse available hotels filtered by category and price.</p>
+</div>
+
+{% endif %}
+
+
+<!-- ── SCOPED STYLES ───────────────────────────────────────── -->
+<style>
+/* Page header */
+.hotel-page-header {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s ease both;
+}
+.hotel-page-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+.hotel-page-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-top: -6px;
+}
+
+/* Search card */
+.hotel-search-card {
+    max-width: 900px;
+    margin: 0 auto 44px;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--glass-border) !important;
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-card);
+    padding: 28px 30px !important;
+}
+
+/* Search grid */
+.hotel-search-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+/* Field */
+.hotel-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.055);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+.hotel-field:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,160,48,0.15);
+}
+.hotel-field-icon { font-size: 18px; flex-shrink: 0; }
+.hotel-field-inner { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.hotel-field-inner label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3px;
+}
+.hotel-field-inner input,
+.hotel-field-inner select {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+}
+.hotel-field-inner input::placeholder { color: var(--text-muted); font-weight: 300; }
+.hotel-field-inner select option { background: var(--bg-mid); color: var(--text-primary); }
+
+/* Search btn */
+.hotel-search-btn {
+    padding: 13px 22px;
+    white-space: nowrap;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    border-radius: 10px !important;
+}
+
+/* Quick filter tags */
+.hotel-quick-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.hqf-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.hqf-tag {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 50px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+}
+.hqf-tag:hover {
+    background: rgba(232,160,48,0.12);
+    border-color: rgba(232,160,48,0.3);
+    color: var(--accent);
+}
+
+/* Results header */
+.hotel-results-header {
+    max-width: 1100px;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+}
+.hotel-results-count { font-size: 14px; color: var(--text-secondary); }
+.hotel-results-count strong { color: var(--text-primary); font-weight: 600; }
+
+/* View toggle */
+.hotel-view-toggle { display: flex; gap: 6px; }
+.hvt-btn {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.hvt-btn.active {
+    background: rgba(232,160,48,0.15);
+    border-color: rgba(232,160,48,0.35);
+    color: var(--accent);
+}
+.hvt-btn:not(.active):hover { background: rgba(255,255,255,0.09); }
+
+/* Hotel grid */
+.hotel-grid-view {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+.hotel-grid-view.list-view {
+    grid-template-columns: 1fr;
+}
+.hotel-grid-view.list-view .hotel-result-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto auto;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 26px;
+}
+.hotel-grid-view.list-view .hc-color-bar { display: none; }
+.hotel-grid-view.list-view .hc-stars { display: none; }
+.hotel-grid-view.list-view .hc-amenities { display: none; }
+.hotel-grid-view.list-view .hc-divider { display: none; }
+.hotel-grid-view.list-view .hc-top { flex-direction: column; gap: 6px; }
+.hotel-grid-view.list-view .hc-footer { flex-direction: row; align-items: center; gap: 20px; }
+
+/* Hotel card */
+.hotel-result-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 0;
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: var(--transition);
+    animation: fadeUp 0.5s ease both;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.hotel-result-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-card), 0 0 36px rgba(62,207,142,0.1);
+}
+
+/* Per-category hover accent */
+.hcat--luxury:hover   { border-color: rgba(232,160,48,0.3);  box-shadow: var(--shadow-card), 0 0 36px rgba(232,160,48,0.12); }
+.hcat--budget:hover   { border-color: rgba(100,180,255,0.3); box-shadow: var(--shadow-card), 0 0 36px rgba(100,180,255,0.1); }
+.hcat--family:hover   { border-color: rgba(62,207,142,0.3);  box-shadow: var(--shadow-card), 0 0 36px rgba(62,207,142,0.12); }
+
+/* Color bar at top of card */
+.hc-color-bar {
+    height: 4px;
+    border-radius: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent);
+    transition: background 0.3s;
+}
+.hcat--luxury .hc-color-bar   { background: linear-gradient(90deg, var(--accent), rgba(232,160,48,0.2), transparent); }
+.hcat--budget .hc-color-bar   { background: linear-gradient(90deg, #7ab4ff, rgba(100,180,255,0.2), transparent); }
+.hcat--family .hc-color-bar   { background: linear-gradient(90deg, #3ecf8e, rgba(62,207,142,0.2), transparent); }
+
+/* Card content padding */
+.hc-top, .hc-identity, .hc-stars, .hc-amenities, .hc-footer {
+    padding: 0 22px;
+}
+.hc-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 16px;
+}
+.hc-icon-wrap {
+    font-size: 28px;
+    width: 50px; height: 50px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.3s;
+}
+.hotel-result-card:hover .hc-icon-wrap { transform: scale(1.1) rotate(-4deg); }
+
+/* Category badge */
+.hc-category-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 50px;
+}
+.hcb--luxury { background: rgba(232,160,48,0.12); color: var(--accent);  border: 1px solid rgba(232,160,48,0.28); }
+.hcb--budget { background: rgba(100,180,255,0.1); color: #7ab4ff;        border: 1px solid rgba(100,180,255,0.22); }
+.hcb--family { background: rgba(62,207,142,0.1);  color: #3ecf8e;        border: 1px solid rgba(62,207,142,0.22); }
+
+/* Identity */
+.hc-identity { margin-bottom: 12px; }
+.hc-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    letter-spacing: 0.01em;
+    line-height: 1.3;
+}
+.hc-city {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* Stars */
+.hc-stars {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 14px;
+}
+.hc-star { font-size: 14px; color: rgba(255,255,255,0.18); }
+.hc-star.filled { color: var(--accent); text-shadow: 0 0 8px var(--accent-glow); }
+
+/* Amenities */
+.hc-amenities {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+.hc-amenity {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    color: var(--text-secondary);
+}
+
+/* Divider */
+.hc-divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: 0 22px 18px;
+}
+
+/* Footer */
+.hc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 22px;
+    margin-top: auto;
+}
+.hc-price-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    display: block;
+}
+.hc-price { margin: 0 !important; }
+.hc-book-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px !important;
+}
+
+/* Empty state */
+.hotel-empty-state {
+    text-align: center;
+    padding: 70px 24px;
+    max-width: 420px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.2s ease both;
+}
+.hotel-empty-visual {
+    position: relative;
+    width: 100px; height: 100px;
+    margin: 0 auto 28px;
+}
+.hev-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.hev-r1 { width: 100px; height: 100px; top: 0; left: 0; animation: hpulse 3s ease-in-out infinite; }
+.hev-r2 { width: 68px; height: 68px; top: 16px; left: 16px; animation: hpulse 3s 0.6s ease-in-out infinite; border-color: rgba(62,207,142,0.15); }
+.hev-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 32px; }
+@keyframes hpulse {
+    0%,100% { transform: scale(1); opacity: 0.5; }
+    50%      { transform: scale(1.08); opacity: 1; }
+}
+.hotel-empty-state h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+.hotel-empty-state p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.7;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+    .hotel-grid-view { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+    .hotel-search-grid { grid-template-columns: 1fr 1fr; }
+    .hotel-field--wide  { grid-column: 1 / -1; }
+    .hotel-search-btn   { grid-column: 1 / -1; }
+    .hotel-grid-view    { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+    .hotel-search-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<!-- ── SCRIPTS ─────────────────────────────────────────────── -->
+<script>
+function setCity(city) {
+    const input = document.querySelector('input[name="city"]');
+    if (input) {
+        input.value = city;
+        input.focus();
+    }
+}
+function setView(btn, view) {
+    document.querySelectorAll('.hvt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const grid = document.getElementById('hotelResultsGrid');
+    if (grid) {
+        grid.classList.toggle('list-view', view === 'list');
+    }
+}
+</script>
+
+{% endblock %}

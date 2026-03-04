@@ -1,0 +1,565 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+<div class="flight-page-header">
+    <div class="flight-page-eyebrow">✈️ Flight Booking</div>
+    <h2 class="page-title">Book Your Flight</h2>
+    <p class="flight-page-sub">Search premium routes across hundreds of airlines</p>
+</div>
+
+<!-- ── SEARCH CARD ─────────────────────────────────────────── -->
+<div class="flight-search flight-search-card">
+    <form method="POST" id="flightSearchForm">
+
+        <!-- Trip type toggle -->
+        <div class="flight-trip-toggle">
+            <button type="button" class="ftt-btn active" onclick="setTrip(this,'one-way')">One Way</button>
+            <button type="button" class="ftt-btn" onclick="setTrip(this,'round-trip')">Round Trip</button>
+        </div>
+
+        <div class="flight-grid flight-search-grid">
+
+            <!-- From -->
+            <div class="flight-field">
+                <span class="flight-field-icon">🛫</span>
+                <div class="flight-field-inner">
+                    <label>From</label>
+                    <input type="text" name="source" placeholder="City or airport code" required autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Swap -->
+            <button type="button" class="flight-swap-btn" onclick="swapAirports()" title="Swap airports">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+                </svg>
+            </button>
+
+            <!-- To -->
+            <div class="flight-field">
+                <span class="flight-field-icon">🛬</span>
+                <div class="flight-field-inner">
+                    <label>To</label>
+                    <input type="text" name="destination" placeholder="City or airport code" required autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Date -->
+            <div class="flight-field">
+                <span class="flight-field-icon">📅</span>
+                <div class="flight-field-inner">
+                    <label>Departure Date</label>
+                    <input type="date" name="date" required>
+                </div>
+            </div>
+
+            <!-- Class -->
+            <div class="flight-field">
+                <span class="flight-field-icon">💺</span>
+                <div class="flight-field-inner">
+                    <label>Cabin Class</label>
+                    <select name="class">
+                        <option value="Economy">Economy</option>
+                        <option value="Business">Business</option>
+                        <option value="First">First Class</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <button type="submit" class="btn flight-search-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                Search Flights
+            </button>
+
+        </div>
+    </form>
+</div>
+
+<!-- ── RESULTS ─────────────────────────────────────────────── -->
+{% if flights %}
+
+<div class="flight-results-header">
+    <p class="flight-results-count">
+        <strong>{{ flights|length }} flight{{ 's' if flights|length != 1 else '' }}</strong> found
+    </p>
+    <div class="flight-filter-pills">
+        <span class="ffp active">Cheapest</span>
+        <span class="ffp">Fastest</span>
+        <span class="ffp">Best</span>
+    </div>
+</div>
+
+<div class="flight-results">
+    {% for flight in flights %}
+    <div class="flight-card flight-result-card" style="animation-delay: {{ loop.index0 * 0.08 }}s">
+
+        <!-- Airline logo / badge -->
+        <div class="fc-col-airline">
+            <div class="fc-airline-badge">
+                {{ flight.airline[:2].upper() }}
+            </div>
+            <div>
+                <p class="fc-airline-name">{{ flight.airline }}</p>
+                <span class="fc-class-tag">Economy</span>
+            </div>
+        </div>
+
+        <!-- Route timeline -->
+        <div class="fc-col-route">
+            <div class="fc-route-wrap">
+
+                <div class="fc-stop">
+                    <p class="fc-airport-code">{{ flight.source[:3].upper() }}</p>
+                    <p class="fc-airport-city">{{ flight.source }}</p>
+                </div>
+
+                <div class="fc-route-mid">
+                    <div class="fc-route-line-wrap">
+                        <div class="fc-route-line"></div>
+                        <div class="fc-plane-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                            </svg>
+                        </div>
+                        <div class="fc-route-line"></div>
+                    </div>
+                    <p class="fc-duration-label">{{ flight.duration }}</p>
+                    <p class="fc-nonstop-label">Non-stop</p>
+                </div>
+
+                <div class="fc-stop">
+                    <p class="fc-airport-code">{{ flight.destination[:3].upper() }}</p>
+                    <p class="fc-airport-city">{{ flight.destination }}</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Date chip -->
+        <div class="fc-col-date">
+            <div class="fc-date-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:.55"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                {{ flight.date }}
+            </div>
+            <div class="fc-seats-left">🔥 4 seats left</div>
+        </div>
+
+        <!-- Price + CTA -->
+        <div class="fc-col-cta">
+            <p class="fc-price-label">Per person</p>
+            <p class="price fc-price">₹ {{ flight.price }}</p>
+            <a href="#" class="btn small-btn fc-book-btn">
+                Book Now
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+
+<!-- Pre-search / empty state -->
+<div class="flight-empty-state">
+    <div class="flight-empty-visual">
+        <div class="fev-circle fev-c1"></div>
+        <div class="fev-circle fev-c2"></div>
+        <div class="fev-plane">✈️</div>
+    </div>
+    <h3>Where to next?</h3>
+    <p>Fill in your departure city, destination and date to find available flights.</p>
+</div>
+
+{% endif %}
+
+
+<!-- ── SCOPED STYLES ───────────────────────────────────────── -->
+<style>
+/* Page header */
+.flight-page-header {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s ease both;
+}
+.flight-page-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+.flight-page-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-top: -6px;
+}
+
+/* Search card */
+.flight-search-card {
+    max-width: 1000px;
+    margin: 0 auto 44px;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--glass-border) !important;
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-card);
+    padding: 28px 30px !important;
+}
+
+/* Trip type toggle */
+.flight-trip-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 22px;
+}
+.ftt-btn {
+    padding: 7px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: 'DM Sans', sans-serif;
+}
+.ftt-btn.active {
+    background: linear-gradient(135deg, var(--accent), #c87c18);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 14px var(--accent-glow);
+}
+.ftt-btn:not(.active):hover {
+    background: rgba(255,255,255,0.09);
+    color: var(--text-primary);
+}
+
+/* Search grid */
+.flight-search-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 40px 1fr 1fr 1fr auto !important;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Field */
+.flight-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.055);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+.flight-field:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,160,48,0.15);
+}
+.flight-field-icon { font-size: 18px; flex-shrink: 0; }
+.flight-field-inner { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.flight-field-inner label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3px;
+    white-space: nowrap;
+}
+.flight-field-inner input,
+.flight-field-inner select {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+}
+.flight-field-inner input::placeholder { color: var(--text-muted); font-weight: 300; }
+.flight-field-inner select option { background: var(--bg-mid); color: var(--text-primary); }
+
+/* Swap btn */
+.flight-swap-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(232,160,48,0.10);
+    border: 1px solid rgba(232,160,48,0.28);
+    color: var(--accent);
+    cursor: pointer;
+    justify-self: center;
+    transition: background 0.25s, transform 0.35s;
+}
+.flight-swap-btn:hover { background: rgba(232,160,48,0.22); transform: rotate(180deg); }
+
+/* Search btn */
+.flight-search-btn {
+    padding: 13px 22px;
+    white-space: nowrap;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    border-radius: 10px !important;
+}
+
+/* Results header */
+.flight-results-header {
+    max-width: 1000px;
+    margin: 0 auto 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+}
+.flight-results-count { font-size: 14px; color: var(--text-secondary); }
+.flight-results-count strong { color: var(--text-primary); font-weight: 600; }
+.flight-filter-pills { display: flex; gap: 8px; }
+.ffp {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 16px;
+    border-radius: 50px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.ffp.active {
+    background: rgba(232,160,48,0.15);
+    border-color: rgba(232,160,48,0.35);
+    color: var(--accent);
+}
+.ffp:hover:not(.active) { background: rgba(255,255,255,0.09); color: var(--text-primary); }
+
+/* Results list */
+.flight-results { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+.flight-result-card {
+    display: grid;
+    grid-template-columns: 170px 1fr 150px 170px;
+    gap: 20px;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 22px 28px;
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: var(--transition);
+    animation: fadeUp 0.5s ease both;
+    position: relative;
+    overflow: hidden;
+}
+/* Purple left accent on hover (flight theme) */
+.flight-result-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #b89aff, transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+.flight-result-card:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-4px);
+    border-color: rgba(184,154,255,0.25);
+    box-shadow: var(--shadow-card), 0 0 30px rgba(184,154,255,0.1);
+}
+.flight-result-card:hover::before { opacity: 1; }
+
+/* Airline column */
+.fc-col-airline { display: flex; align-items: center; gap: 13px; }
+.fc-airline-badge {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(184,154,255,0.22), rgba(184,154,255,0.07));
+    border: 1px solid rgba(184,154,255,0.28);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px; font-weight: 700;
+    color: #b89aff;
+    flex-shrink: 0;
+    transition: transform 0.3s;
+}
+.flight-result-card:hover .fc-airline-badge { transform: scale(1.08) rotate(-3deg); }
+.fc-airline-name { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+.fc-class-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background: rgba(232,160,48,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(232,160,48,0.22);
+    padding: 2px 9px;
+    border-radius: 50px;
+}
+
+/* Route column */
+.fc-col-route { padding: 0 12px; }
+.fc-route-wrap { display: flex; align-items: center; gap: 12px; }
+.fc-stop { text-align: center; flex-shrink: 0; }
+.fc-airport-code {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.fc-airport-city { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+
+.fc-route-mid { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; }
+.fc-route-line-wrap { display: flex; align-items: center; width: 100%; gap: 0; }
+.fc-route-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(184,154,255,0.35)); }
+.fc-plane-icon {
+    color: #b89aff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: planeBob 3s ease-in-out infinite;
+}
+@keyframes planeBob {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-3px); }
+}
+.fc-duration-label { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.fc-nonstop-label  { font-size: 10px; color: #3ecf8e; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Date column */
+.fc-col-date { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.fc-date-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    white-space: nowrap;
+}
+.fc-seats-left {
+    font-size: 11px;
+    font-weight: 600;
+    color: #f26b6b;
+    letter-spacing: 0.03em;
+}
+
+/* CTA column */
+.fc-col-cta { text-align: right; }
+.fc-price-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 2px; }
+.fc-price { margin-bottom: 12px !important; }
+.fc-book-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px !important;
+}
+
+/* Empty state */
+.flight-empty-state {
+    text-align: center;
+    padding: 70px 24px;
+    max-width: 420px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.2s ease both;
+}
+.flight-empty-visual {
+    position: relative;
+    width: 100px; height: 100px;
+    margin: 0 auto 24px;
+}
+.fev-circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.fev-c1 { width: 100px; height: 100px; top: 0; left: 0; animation: pulse 3s ease-in-out infinite; }
+.fev-c2 { width: 70px; height: 70px; top: 15px; left: 15px; animation: pulse 3s 0.5s ease-in-out infinite; border-color: rgba(232,160,48,0.15); }
+.fev-plane { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 32px; animation: planeBob 2.5s ease-in-out infinite; }
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50%       { transform: scale(1.08); opacity: 1; }
+}
+.flight-empty-state h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+.flight-empty-state p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.7;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .flight-search-grid    { grid-template-columns: 1fr 36px 1fr !important; }
+    .flight-search-grid .flight-field:nth-child(4),
+    .flight-search-grid .flight-field:nth-child(5) { grid-column: 1 / -1; }
+    .flight-search-grid .flight-search-btn          { grid-column: 1 / -1; }
+    .flight-result-card { grid-template-columns: 1fr 1fr; }
+    .fc-col-route       { grid-column: 1 / -1; }
+    .fc-col-cta         { text-align: left; }
+}
+@media (max-width: 540px) {
+    .flight-search-grid { grid-template-columns: 1fr !important; }
+    .flight-swap-btn    { display: none; }
+    .flight-result-card { grid-template-columns: 1fr; }
+    .fc-airport-code    { font-size: 18px; }
+}
+</style>
+
+<!-- ── SCRIPTS ─────────────────────────────────────────────── -->
+<script>
+function swapAirports() {
+    const src  = document.querySelector('input[name="source"]');
+    const dest = document.querySelector('input[name="destination"]');
+    [src.value, dest.value] = [dest.value, src.value];
+}
+function setTrip(btn, type) {
+    document.querySelectorAll('.ftt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', () => {
+    const d = document.querySelector('input[name="date"]');
+    if (d) {
+        const today = new Date().toISOString().split('T')[0];
+        d.min = today;
+        if (!d.value) d.value = today;
+    }
+    document.querySelectorAll('.ffp').forEach(pill => {
+        pill.addEventListener('click', function() {
+            document.querySelectorAll('.ffp').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+});
+</script>
+
+{% endblock %}

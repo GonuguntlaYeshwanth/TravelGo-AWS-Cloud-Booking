@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="page-title">Payment</h2>
+
+<div class="payment-card">
+    <p><strong>Type:</strong> {{ booking.type }}</p>
+    <p><strong>From:</strong> {{ booking.source }}</p>
+    <p><strong>To:</strong> {{ booking.destination }}</p>
+    <p><strong>Date:</strong> {{ booking.date }}</p>
+    <p><strong>Price:</strong> ₹ {{ booking.price }}</p>
+
+    {% if booking.seats %}
+        <p><strong>Seats:</strong> {{ booking.seats }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <button type="submit" class="btn">Confirm Payment</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ── WELCOME HEADER ──────────────────────────────────────── -->
+<div class="dash-hero">
+    <div class="dash-hero-left">
+        <p class="dash-eyebrow">👋 Good to see you back</p>
+        <h2 class="dashboard-title">Welcome, <span class="dash-name">{{ session.get('email', '').split('@')[0] | title }}</span></h2>
+        <p class="dash-sub">Where would you like to go today?</p>
+    </div>
+    <div class="dash-hero-right">
+        <div class="dash-stat-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3v4M8 3v4"/></svg>
+            {% if bookings %}{{ bookings|length }} booking{{ 's' if bookings|length != 1 else '' }}{% else %}No bookings yet{% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ── TRAVEL OPTIONS ──────────────────────────────────────── -->
+<div class="dash-section-label">Explore & Book</div>
+<div class="travel-options">
+    <a href="/bus" class="travel-card travel-card--bus">
+        <div class="tc-icon-wrap">🚌</div>
+        <div class="tc-body"><h3>Bus</h3><p>Affordable & Flexible Travel</p></div>
+        <div class="tc-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="tc-bg-glow"></div>
+    </a>
+    <a href="/train" class="travel-card travel-card--train">
+        <div class="tc-icon-wrap">🚆</div>
+        <div class="tc-body"><h3>Train</h3><p>Comfortable Long Distance</p></div>
+        <div class="tc-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="tc-bg-glow"></div>
+    </a>
+    <a href="/flight" class="travel-card travel-card--flight">
+        <div class="tc-icon-wrap">✈️</div>
+        <div class="tc-body"><h3>Flight</h3><p>Fast & Premium Travel</p></div>
+        <div class="tc-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="tc-bg-glow"></div>
+    </a>
+    <a href="/hotels" class="travel-card travel-card--hotel">
+        <div class="tc-icon-wrap">🏨</div>
+        <div class="tc-body"><h3>Hotels</h3><p>Luxury & Budget Stays</p></div>
+        <div class="tc-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="tc-bg-glow"></div>
+    </a>
+</div>
+
+<!-- ── BOOKINGS SECTION ────────────────────────────────────── -->
+<div class="booking-section">
+    <div class="dash-section-row">
+        <div class="dash-section-label" style="margin:0">Your Bookings</div>
+        {% if bookings %}<span class="dash-booking-count">{{ bookings|length }} total</span>{% endif %}
+    </div>
+
+    {% if bookings %}
+    <div class="bookings-grid">
+        {% for booking in bookings %}
+        <div class="bk-card" id="bk-card-{{ booking.booking_id }}" style="animation-delay:{{ loop.index0 * 0.07 }}s">
+
+            <!-- VIEW MODE -->
+            <div id="bk-view-{{ booking.booking_id }}">
+                <div class="bk-top">
+                    <span class="bk-type-badge bk-type--{{ booking.type | lower }}">
+                        {% if booking.type|lower == 'bus' %}🚌
+                        {% elif booking.type|lower == 'train' %}🚆
+                        {% elif booking.type|lower == 'flight' %}✈️
+                        {% elif booking.type|lower == 'hotel' %}🏨
+                        {% else %}🗺️{% endif %}
+                        {{ booking.type }}
+                    </span>
+                    <div class="bk-top-right">
+                        <span class="bk-status bk-status--{{ booking.status|lower|replace(' ','-') }}">
+                            {% if booking.status|lower == 'confirmed' %}✔ 
+                            {% elif booking.status|lower == 'cancelled' %}✖ 
+                            {% elif booking.status|lower == 'pending' %}⏳ 
+                            {% endif %}{{ booking.status }}
+                        </span>
+                        <div class="bk-actions">
+                            <button class="bk-action-btn bk-edit-btn" onclick="openEdit('{{ booking.booking_id }}')" title="Edit booking">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button class="bk-action-btn bk-delete-btn" onclick="confirmDelete('{{ booking.booking_id }}')" title="Delete booking">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bk-route">
+                    <div class="bk-city"><span class="bk-city-dot origin"></span><span class="bk-city-name">{{ booking.source }}</span></div>
+                    <div class="bk-route-mid">
+                        <div class="bk-route-dash"></div>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.4;flex-shrink:0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        <div class="bk-route-dash"></div>
+                    </div>
+                    <div class="bk-city"><span class="bk-city-dot dest"></span><span class="bk-city-name">{{ booking.destination }}</span></div>
+                </div>
+                <div class="bk-date">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    {{ booking.date }}
+                </div>
+            </div>
+
+            <!-- EDIT MODE -->
+            <div class="bk-panel" id="bk-edit-{{ booking.booking_id }}" style="display:none">
+                <div class="bk-panel-title bk-panel-title--edit">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Update Travel Info
+                </div>
+                <form method="POST" action="/update_booking/{{ booking.booking_id }}" class="bk-edit-form">
+                    <div class="bk-edit-row">
+                        <div class="bk-edit-field">
+                            <label>From</label>
+                            <input type="text" name="source" value="{{ booking.source }}" required placeholder="Source city">
+                        </div>
+                        <div class="bk-edit-field">
+                            <label>To</label>
+                            <input type="text" name="destination" value="{{ booking.destination }}" required placeholder="Destination city">
+                        </div>
+                    </div>
+                    <div class="bk-edit-row">
+                        <div class="bk-edit-field">
+                            <label>Travel Date</label>
+                            <input type="date" name="date" value="{{ booking.date }}" required>
+                        </div>
+                        <div class="bk-edit-field">
+                            <label>Status</label>
+                            <select name="status">
+                                <option value="Confirmed" {% if booking.status=='Confirmed' %}selected{% endif %}>Confirmed</option>
+                                <option value="Pending"   {% if booking.status=='Pending'   %}selected{% endif %}>Pending</option>
+                                <option value="Cancelled" {% if booking.status=='Cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bk-panel-actions">
+                        <button type="button" class="bk-btn-ghost" onclick="closeEdit('{{ booking.booking_id }}')">Cancel</button>
+                        <button type="submit" class="bk-btn-primary">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- DELETE CONFIRM -->
+            <div class="bk-panel bk-del-panel" id="bk-del-{{ booking.booking_id }}" style="display:none">
+                <div class="bk-del-icon">🗑️</div>
+                <p class="bk-del-msg">Delete this <strong>{{ booking.type }}</strong> trip from <strong>{{ booking.source }}</strong> → <strong>{{ booking.destination }}</strong>?</p>
+                <p class="bk-del-sub">This cannot be undone.</p>
+                <div class="bk-panel-actions">
+                    <button class="bk-btn-ghost" onclick="cancelDelete('{{ booking.booking_id }}')">Keep It</button>
+                    <form method="POST" action="/delete_booking/{{ booking.booking_id }}" style="margin:0;flex:2">
+                        <button type="submit" class="bk-btn-danger" style="width:100%">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                            Yes, Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="bk-empty">
+        <div class="bk-empty-icon">🗺️</div>
+        <h4>No trips yet</h4>
+        <p>Start exploring routes above to make your first booking.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.dash-hero{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;animation:fadeUp .6s ease both;flex-wrap:wrap;gap:16px}
+.dash-eyebrow{font-size:13px;font-weight:500;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:8px}
+.dashboard-title{font-family:'Playfair Display',serif!important;font-size:clamp(26px,3.5vw,38px)!important;margin-bottom:8px!important;letter-spacing:-.01em}
+.dash-name{background:linear-gradient(135deg,var(--accent),#f5d080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.dash-sub{font-size:15px;color:var(--text-secondary);font-weight:300}
+.dash-stat-pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--text-secondary);background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:50px;padding:8px 16px}
+.dash-section-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:18px}
+.dash-section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.dash-booking-count{font-size:12px;color:var(--text-muted);background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:50px;padding:3px 12px}
+.travel-options{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:52px}
+.travel-card{position:relative;display:flex;flex-direction:column;gap:16px;background:var(--bg-card);border:1px solid var(--glass-border);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:26px 24px;border-radius:var(--radius-md);text-decoration:none;color:var(--text-primary);overflow:hidden;transition:var(--transition);box-shadow:var(--shadow-card)}
+.travel-card:nth-child(1){animation:fadeUp .55s .05s ease both}
+.travel-card:nth-child(2){animation:fadeUp .55s .13s ease both}
+.travel-card:nth-child(3){animation:fadeUp .55s .21s ease both}
+.travel-card:nth-child(4){animation:fadeUp .55s .29s ease both}
+.travel-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-card),0 0 36px rgba(232,160,48,.12)}
+.tc-icon-wrap{font-size:30px;width:54px;height:54px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.07);border:1px solid var(--glass-border);border-radius:14px;transition:transform .3s}
+.travel-card:hover .tc-icon-wrap{transform:scale(1.1) rotate(-4deg)}
+.tc-body h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:5px}
+.tc-body p{font-size:13px;color:var(--text-secondary);font-weight:300;line-height:1.5}
+.tc-arrow{margin-top:auto;width:32px;height:32px;border-radius:50%;background:rgba(232,160,48,.1);border:1px solid rgba(232,160,48,.2);display:flex;align-items:center;justify-content:center;color:var(--accent);transition:background .25s,transform .25s}
+.travel-card:hover .tc-arrow{background:var(--accent);color:#fff;transform:translateX(4px);border-color:var(--accent)}
+.tc-bg-glow{position:absolute;width:120px;height:120px;border-radius:50%;bottom:-40px;right:-30px;opacity:0;transition:opacity .4s;filter:blur(40px);pointer-events:none}
+.travel-card--bus .tc-bg-glow{background:rgba(232,160,48,.3)}
+.travel-card--train .tc-bg-glow{background:rgba(100,180,255,.3)}
+.travel-card--flight .tc-bg-glow{background:rgba(150,120,255,.3)}
+.travel-card--hotel .tc-bg-glow{background:rgba(62,207,142,.3)}
+.travel-card:hover .tc-bg-glow{opacity:1}
+.travel-card--bus:hover{border-color:rgba(232,160,48,.3)}
+.travel-card--train:hover{border-color:rgba(100,180,255,.3)}
+.travel-card--flight:hover{border-color:rgba(150,120,255,.3)}
+.travel-card--hotel:hover{border-color:rgba(62,207,142,.3)}
+.bookings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:18px}
+.bk-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:22px;box-shadow:var(--shadow-card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:var(--transition);animation:fadeUp .5s ease both}
+.bk-card:hover{background:var(--bg-card-hover);transform:translateY(-3px);border-color:rgba(232,160,48,.16)}
+.bk-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.bk-top-right{display:flex;align-items:center;gap:8px}
+.bk-type-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 11px;border-radius:50px}
+.bk-type--bus{background:rgba(232,160,48,.12);color:var(--accent);border:1px solid rgba(232,160,48,.25)}
+.bk-type--train{background:rgba(100,180,255,.1);color:#7ab4ff;border:1px solid rgba(100,180,255,.2)}
+.bk-type--flight{background:rgba(150,120,255,.1);color:#b89aff;border:1px solid rgba(150,120,255,.2)}
+.bk-type--hotel{background:rgba(62,207,142,.1);color:#3ecf8e;border:1px solid rgba(62,207,142,.2)}
+.bk-status{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 11px;border-radius:50px}
+.bk-status--confirmed{background:rgba(62,207,142,.12);color:#3ecf8e;border:1px solid rgba(62,207,142,.25)}
+.bk-status--pending{background:rgba(232,160,48,.12);color:var(--accent);border:1px solid rgba(232,160,48,.25)}
+.bk-status--cancelled{background:rgba(242,107,107,.1);color:#f26b6b;border:1px solid rgba(242,107,107,.2)}
+.bk-actions{display:flex;gap:6px}
+.bk-action-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);background:rgba(255,255,255,.05)}
+.bk-edit-btn{color:var(--text-secondary)}
+.bk-delete-btn{color:var(--text-secondary)}
+.bk-edit-btn:hover{background:rgba(232,160,48,.15);border-color:rgba(232,160,48,.35);color:var(--accent);transform:scale(1.1)}
+.bk-delete-btn:hover{background:rgba(242,107,107,.15);border-color:rgba(242,107,107,.35);color:#f26b6b;transform:scale(1.1)}
+.bk-route{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.bk-city{display:flex;align-items:center;gap:8px;min-width:0}
+.bk-city-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.bk-city-dot.origin{background:var(--accent);box-shadow:0 0 6px var(--accent-glow)}
+.bk-city-dot.dest{background:#3ecf8e;box-shadow:0 0 6px rgba(62,207,142,.35)}
+.bk-city-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-route-mid{flex:1;display:flex;align-items:center;gap:4px;min-width:0}
+.bk-route-dash{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.08),rgba(255,255,255,.16))}
+.bk-date{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-secondary);background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:7px;padding:7px 12px}
+.bk-panel{animation:fadeUp .28s ease both}
+.bk-panel-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--glass-border)}
+.bk-panel-title--edit{color:var(--accent)}
+.bk-edit-form{display:flex;flex-direction:column;gap:14px}
+.bk-edit-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bk-edit-field{display:flex;flex-direction:column;gap:5px}
+.bk-edit-field label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.bk-edit-field input,.bk-edit-field select{background:rgba(255,255,255,.07);border:1px solid var(--glass-border);border-radius:8px;padding:10px 12px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .25s,box-shadow .25s;width:100%}
+.bk-edit-field input:focus,.bk-edit-field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,160,48,.14);background:rgba(255,255,255,.10)}
+.bk-edit-field select option{background:var(--bg-mid);color:var(--text-primary)}
+.bk-del-panel{text-align:center;padding:8px 4px 4px}
+.bk-del-icon{font-size:38px;margin-bottom:14px;display:block}
+.bk-del-msg{font-size:14px;font-weight:500;line-height:1.65;margin-bottom:6px}
+.bk-del-msg strong{color:var(--text-primary)}
+.bk-del-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px}
+.bk-panel-actions{display:flex;gap:10px;margin-top:6px}
+.bk-btn-ghost{flex:1;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);color:var(--text-secondary);cursor:pointer;transition:background .25s,color .25s;font-family:'DM Sans',sans-serif}
+.bk-btn-ghost:hover{background:rgba(255,255,255,.11);color:var(--text-primary)}
+.bk-btn-primary{flex:2;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;background:linear-gradient(135deg,var(--accent),#c87c18);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 16px var(--accent-glow);transition:transform .25s,box-shadow .25s;font-family:'DM Sans',sans-serif}
+.bk-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--accent-glow)}
+.bk-btn-danger{flex:2;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;background:linear-gradient(135deg,#e84040,#b52626);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 16px rgba(242,107,107,.3);transition:transform .25s,box-shadow .25s;font-family:'DM Sans',sans-serif}
+.bk-btn-danger:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(242,107,107,.45)}
+.bk-empty{text-align:center;padding:60px 24px;max-width:380px;margin:0 auto;animation:fadeUp .6s .2s ease both}
+.bk-empty-icon{font-size:50px;margin-bottom:16px;display:block}
+.bk-empty h4{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px}
+.bk-empty p{font-size:14px;color:var(--text-secondary);font-weight:300;line-height:1.7}
+@media(max-width:900px){.travel-options{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:540px){.travel-options{grid-template-columns:1fr 1fr;gap:12px}.bookings-grid{grid-template-columns:1fr}.bk-edit-row{grid-template-columns:1fr}.dash-hero{flex-direction:column;align-items:flex-start}}
+</style>
+
+<script>
+function openEdit(id) { hide('bk-view-'+id); hide('bk-del-'+id); show('bk-edit-'+id); }
+function closeEdit(id) { show('bk-view-'+id); hide('bk-edit-'+id); }
+function confirmDelete(id) { hide('bk-view-'+id); hide('bk-edit-'+id); show('bk-del-'+id); }
+function cancelDelete(id) { show('bk-view-'+id); hide('bk-del-'+id); }
+function show(id) { const el=document.getElementById(id); if(el) el.style.display='block'; }
+function hide(id) { const el=document.getElementById(id); if(el) el.style.display='none'; }
+</script>
+
+{% endblock %}
